@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>京东 SKU 价格查询演示页</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --primary:#0070ba;               /* JD蓝 */
+    --bg:#f8f9fa;
+    --text:#333;
+    --border:#e0e0e0;
+    --radius:8px;
+    --max-width:960px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:system-ui,Arial,Helvetica,sans-serif;
+    background:var(--bg); color:var(--text);
+    line-height:1.5;
+  }
+  .container{
+    max-width:var(--max-width);
+    margin:2rem auto;
+    padding:1rem;
+    background:#fff;
+    border-radius:var(--radius);
+    box-shadow:0 2px 6px rgba(0,0,0,.1);
+  }
+  h1{margin:0 0 1rem; font-size:1.8rem; color:var(--primary);}
+  input[type=text]{
+    width:calc(100% - 100px);
+    padding:.6rem .8rem;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    font-size:1rem;
+  }
+  button{
+    width:90px;
+    margin-left:.5rem;
+    padding:.6rem;
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    border-radius:var(--radius);
+    cursor:pointer;
+    font-weight:600;
+  }
+  button:disabled{
+    background:#999;
+    cursor:not-allowed;
+  }
+  #loading{
+    margin-top:.8rem; color:#666; font-style:italic;
+  }
+  #result{
+    margin-top:1.5rem;
+    display:flex;
+    flex-direction:column;
+    gap:.8rem;
+  }
+  .product{
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.05);
+  }
+  .thumb{
+    width:120px;
+    height:120px;
+    background:#f0f0f0;
+    background-size:cover;
+    background-position:center;
+  }
+  .info{
+    padding:1rem;
+    display:flex;
+    flex-direction:column;
+    gap:.5rem;
+  }
+  .title{
+    font-weight:600;
+    font-size:1.1rem;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .sku{font-size:.9rem; color:#666;}
+  .price{
+    font-size:1.2rem;
+    color:var(--primary);
+    display:flex;
+    align-items:center;
+    gap:.3rem;
+  }
+  .price span{font-size:.8rem; color:#999;}
+  .tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.4rem;
+    font-size:.85rem;
+  }
+  .tag{
+    padding:.2rem .5rem;
+    border-radius:.3rem;
+    background:#e6f2ff;
+    color:#0070ba;
+    font-weight:500;
+  }
+  .stock{
+    font-weight:600;
+    color:#d93f00;
+  }
+  @media (max-width:600px){
+    .info{flex-direction:row;}
+    .thumb{width:80px;height:80px;}
+    .title{font-size:1rem;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>京东 SKU 价格查询演示</h1>
+  <input type="text" id="skuInput" placeholder="请输入 SKU 编号" autocomplete="off">
+  <button id="searchBtn">查询</button>
+  <div id="loading" class="hidden">查询中…</div>
+  <div id="result"></div>
+</div>
+
+<script>
+  // ---------------------- mock data --------------------
+  const catalog = {
+    "1000112394": {
+      title: "全棉纯棉 T恤男士夏季短袖",
+      image: "https://p1.tiimg.com/100/1000/1000015y1f0I2y0J0A.jpg",
+      price: { nowPrice: "¥199.00", marketPrice: "¥299.00" },
+      activity: "满 300-30",
+      discount: "85%",
+      stock: "有货",
+      tags: ["限时特惠","满减","免费配送"]
+    },
+    "1000124567": {
+      title: "轻盈防晒霜 SPF 50+ PA++++",
+      image: "https://p1.tiimg.com/100/1000/1000015y1f0I2y0J0B.jpg",
+      price: { nowPrice: "¥89.9", marketPrice: "¥129.00" },
+      activity: "新人专享",
+      discount: "30%",
+      stock: "有货",
+      tags: ["防晒","免费样本"]
+    },
+    "1000136789": {
+      title: "智能蓝牙耳机",
+      image: "https://p1.tiimg.com/100/1000/1000015y1f0I2y0J0C.jpg",
+      price: { nowPrice: "¥199", marketPrice: "¥399" },
+      activity: "限时85折",
+      discount: "85%",
+      stock: "预售",
+      tags: ["蓝牙5.0","降噪"]
+    }
+    // … add more SKUs as needed …
+  };
+
+  // ---------------------- UI helpers --------------------
+  const $ = id => document.getElementById(id);
+  const show = el => el.classList.remove('hidden');
+  const hide = el => el.classList.add('hidden');
+
+  // ---------------------- main logic --------------------
+  const searchBtn = $('searchBtn');
+  const skuInput  = $('skuInput');
+  const loading   = $('loading');
+  const result    = $('result');
+
+  searchBtn.addEventListener('click', runQuery);
+  skuInput.addEventListener('keypress', e => {
+    if (e.key === 'Enter') runQuery();
+  });
+
+  function runQuery() {
+    const sku = skuInput.value.trim();
+    if (!sku) return;
+
+    // basic validation – you can make this stricter if needed
+    if (!/^\d+$/.test(sku)) {
+      alert('请输入数字形式的 SKU 编号');
+      return;
+    }
+
+    hide(result);
+    show(loading);
+    // simulate async latency
+    setTimeout(() => {
+      const prod = catalog[sku];
+      if (prod) {
+        result.innerHTML = `
+          <div class="product">
+            <div class="thumb" style="background-image:url('${prod.image}');"></div>
+            <div class="info">
+              <div class="title">${prod.title}</div>
+              <div class="sku">SKU: ${sku}</div>
+              <div class="price">
+                <span>当前价：</span> <strong>${prod.price.nowPrice}</strong>
+                <span>市场价：</span> ${prod.price.marketPrice}
+              </div>
+              <div class="tags">
+                ${prod.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+              </div>
+              <div class="stock">库存状态：${prod.stock}</div>
+            </div>
+          </div>`;
+      } else {
+        result.innerHTML = `<p style="color:#999;">未找到对应的商品，请检查 SKU 是否正确。</p>`;
+      }
+      hide(loading);
+      show(result);
+    }, 600);
+  }
+</script>
+</body>
+</html>

@@ -1,474 +1,256 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-  <title>京东SKU查询 · 模拟展示</title>
-  <style>
-    /* 全局重置 & 字体 */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: #f5f7fa;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 30px 16px 60px;
-      color: #1e2a3a;
-    }
-
-    .container {
-      max-width: 780px;
-      width: 100%;
-      background: #ffffff;
-      border-radius: 28px;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
-      padding: 28px 24px 36px;
-      transition: all 0.2s ease;
-    }
-
-    /* 头部 */
-    .header {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .header h1 {
-      font-size: 24px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      color: #0a1628;
-      margin-right: 8px;
-    }
-
-    .header .badge {
-      background: #e4393c;
-      color: white;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 2px 12px;
-      border-radius: 30px;
-      background: linear-gradient(145deg, #e63b3b, #c62828);
-      box-shadow: 0 2px 6px rgba(228, 57, 60, 0.2);
-    }
-
-    .sub {
-      color: #6b7a8f;
-      font-size: 14px;
-      margin-left: auto;
-      background: #f0f2f5;
-      padding: 4px 14px;
-      border-radius: 30px;
-    }
-
-    /* 搜索区域 */
-    .search-area {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 28px;
-      align-items: center;
-    }
-
-    .search-input-wrapper {
-      flex: 1;
-      min-width: 200px;
-      position: relative;
-    }
-
-    .search-input-wrapper input {
-      width: 100%;
-      padding: 14px 18px;
-      border: 1.5px solid #e4e8ee;
-      border-radius: 60px;
-      font-size: 16px;
-      background: #fafbfc;
-      transition: all 0.2s;
-      outline: none;
-      color: #1e2a3a;
-      font-weight: 450;
-    }
-
-    .search-input-wrapper input:focus {
-      border-color: #e4393c;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(228, 57, 60, 0.08);
-    }
-
-    .search-input-wrapper input::placeholder {
-      color: #9aa6b5;
-      font-weight: 400;
-    }
-
-    .search-btn {
-      background: #e4393c;
-      border: none;
-      color: white;
-      font-weight: 600;
-      font-size: 16px;
-      padding: 14px 32px;
-      border-radius: 60px;
-      cursor: pointer;
-      transition: 0.15s;
-      letter-spacing: 0.5px;
-      box-shadow: 0 4px 10px rgba(228, 57, 60, 0.25);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
-    }
-
-    .search-btn:hover {
-      background: #d32f2f;
-      transform: scale(1.02);
-      box-shadow: 0 6px 14px rgba(228, 57, 60, 0.3);
-    }
-
-    .search-btn:active {
-      transform: scale(0.97);
-    }
-
-    /* 商品卡片 - 京东风格 */
-    .product-card {
-      margin-top: 8px;
-      border-radius: 24px;
-      background: #ffffff;
-      border: 1px solid #edf0f5;
-      padding: 20px 20px 24px;
-      transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-    }
-
-    .product-main {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
-    }
-
-    /* 图片区域 */
-    .image-section {
-      flex: 0 0 200px;
-      max-width: 200px;
-      width: 100%;
-      background: #fafbfc;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid #f0f2f6;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      aspect-ratio: 1/1;
-      position: relative;
-    }
-
-    .image-section img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      background: #f3f5f9;
-      transition: 0.2s;
-    }
-
-    .image-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #f3f5f9;
-      color: #8f9eb2;
-      font-size: 14px;
-      font-weight: 450;
-      gap: 8px;
-    }
-
-    .image-placeholder svg {
-      opacity: 0.4;
-    }
-
-    /* 信息区域 */
-    .info-section {
-      flex: 1;
-      min-width: 240px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .product-title {
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 1.45;
-      color: #0a1628;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-height: 4.5em;
-    }
-
-    .sku-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 10px 18px;
-      background: #f7f9fc;
-      padding: 8px 14px;
-      border-radius: 40px;
-      font-size: 14px;
-      color: #2d3f58;
-      margin-top: 4px;
-    }
-
-    .sku-label {
-      font-weight: 450;
-      color: #6b7a8f;
-    }
-
-    .sku-value {
-      font-weight: 550;
-      letter-spacing: 0.3px;
-      color: #1e2a3a;
-    }
-
-    .price-stock-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 16px 24px;
-      margin-top: 4px;
-    }
-
-    .price-box {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 8px 16px;
-    }
-
-    .price-item {
-      display: flex;
-      align-items: baseline;
-      gap: 4px;
-    }
-
-    .price-label {
-      font-size: 13px;
-      color: #6b7a8f;
-    }
-
-    .price-number {
-      font-weight: 650;
-      font-size: 20px;
-      color: #e4393c;
-    }
-
-    .price-number small {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .price-original {
-      color: #9aa6b5;
-      text-decoration: line-through;
-      font-size: 16px;
-      font-weight: 400;
-    }
-
-    .tag-group {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px 12px;
-      margin-top: 2px;
-    }
-
-    .tag {
-      background: #fceaea;
-      color: #c62828;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 12px;
-      border-radius: 30px;
-      display: inline-block;
-      border: 0.5px solid rgba(228, 57, 60, 0.15);
-    }
-
-    .tag-promo {
-      background: #e8f0fe;
-      color: #1a5c9e;
-      border-color: #c6dafc;
-    }
-
-    .tag-presale {
-      background: #fff3e0;
-      color: #b7651a;
-      border-color: #fadcb5;
-    }
-
-    .stock-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 4px 14px 4px 10px;
-      border-radius: 40px;
-      background: #eaf7e7;
-      color: #2a7a3b;
-    }
-
-    .stock-status.out {
-      background: #ffe9e9;
-      color: #b33a3a;
-    }
-
-    .stock-status.presale {
-      background: #fff1d6;
-      color: #a45f1a;
-    }
-
-    .stock-indicator {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #2e9c4a;
-      display: inline-block;
-    }
-
-    .stock-status.out .stock-indicator {
-      background: #c94a4a;
-    }
-
-    .stock-status.presale .stock-indicator {
-      background: #d98c2a;
-    }
-
-    /* 优惠信息行 */
-    .promo-line {
-      background: #fafbfe;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-      color: #1e2a3a;
-      border-left: 4px solid #e4393c;
-      margin-top: 6px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 6px 14px;
-    }
-
-    .promo-line strong {
-      font-weight: 600;
-      color: #c62828;
-    }
-
-    .promo-line .extra {
-      color: #6b7a8f;
-      font-size: 13px;
-    }
-
-    /* 空状态 & 消息 */
-    .empty-state {
-      text-align: center;
-      padding: 40px 10px 30px;
-      color: #8f9eb2;
-    }
-
-    .empty-state svg {
-      opacity: 0.3;
-      margin-bottom: 10px;
-    }
-
-    .empty-state p {
-      font-size: 15px;
-    }
-
-    .footer-note {
-      margin-top: 30px;
-      font-size: 13px;
-      color: #9aa6b5;
-      text-align: center;
-      border-top: 1px solid #edf0f5;
-      padding-top: 20px;
-    }
-
-    /* 响应式 */
-    @media (max-width: 600px) {
-      .container {
-        padding: 20px 16px;
-      }
-      .product-main {
-        flex-direction: column;
-        align-items: center;
-      }
-      .image-section {
-        flex: 0 0 160px;
-        max-width: 160px;
-        width: 100%;
-      }
-      .search-btn {
-        width: 100%;
-        justify-content: center;
-      }
-      .header h1 {
-        font-size: 20px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<title>京东 SKU 查询 · 真实数据演示</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+<style>
+/* ---------- 全局重置 & 字体 ---------- */
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:#f5f7fa;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:30px 16px;
+  color:#1e2a3a;
+}
+.container{
+  max-width:780px;
+  width:100%;
+  background:#fff;
+  border-radius:28px;
+  box-shadow:0 12px 30px rgba(0,0,0,.06);
+  padding:28px 24px 36px;
+  transition:all .2s ease;
+}
+/* ---------- 头部 ---------- */
+.header{
+  display:flex;align-items:center;gap:6px;margin-bottom:24px;flex-wrap:wrap
+}
+.header h1{
+  font-size:24px;font-weight:600;color:#0a1628
+}
+.header .badge{
+  background:linear-gradient(145deg,#e63b3b,#c62828);
+  color:#fff;font-size:12px;font-weight:500;
+  padding:2px 12px;border-radius:30px;
+  box-shadow:0 2px 6px rgba(228,57,60,.2)
+}
+.sub{
+  color:#6b7a8f;font-size:14px;
+  background:#f0f2f5;padding:4px 14px;
+  border-radius:30px
+}
+/* ---------- 搜索区 ---------- */
+.search-area{
+  display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;align-items:center
+}
+.search-input-wrapper{
+  flex:1;min-width:200px;position:relative
+}
+.search-input-wrapper input{
+  width:100%;padding:14px 18px;
+  border:1.5px solid #e4e8ee;border-radius:60px;
+  font-size:16px;background:#fafbfc;
+  transition:all .2s;outline:none;
+  color:#1e2a3a;font-weight:450
+}
+.search-input-wrapper input:focus{
+  border-color:#e4393c;background:#fff;
+  box-shadow:0 0 0 4px rgba(228,57,60,.08)
+}
+.search-input-wrapper input::placeholder{
+  color:#9aa6b5;font-weight:400
+}
+.search-btn{
+  background:#e4393c;border:none;color:#fff;
+  font-weight:600;font-size:16px;
+  padding:14px 32px;border-radius:60px;
+  cursor:pointer;transition:.15s;
+  letter-spacing:.5px;box-shadow:0 4px 10px rgba(228,57,60,.25);
+  display:inline-flex;align-items:center;justify-content:center;gap:6px
+}
+.search-btn:hover{
+  background:#d32f2f;transform:scale(1.02);
+  box-shadow:0 6px 14px rgba(228,57,60,.3)
+}
+.search-btn:active{transform:scale(.97)}
+/* ---------- 产品卡片 ---------- */
+.product-card{
+  margin-top:8px;border-radius:24px;
+  background:#fff;border:1px solid #edf0f5;
+  padding:20px 20px 24px;transition:all .2s;
+  box-shadow:0 4px 12px rgba(0,0,0,.02);
+}
+.product-main{
+  display:flex;flex-wrap:wrap;gap:24px
+}
+.image-section{
+  flex:0 0 200px;max-width:200px;width:100%;
+  background:#fafbfc;border-radius:20px;
+  overflow:hidden;border:1px solid #f0f2f6;
+  display:flex;align-items:center;justify-content:center;
+  aspect-ratio:1/1;position:relative
+}
+.image-section img{
+  width:100%;height:100%;object-fit:cover;
+  display:block;background:#f3f5f9
+}
+.image-placeholder{
+  width:100%;height:100%;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;
+  background:#f3f5f9;color:#8f9eb2;font-size:14px;font-weight:450
+}
+.image-placeholder svg{opacity:.4}
+.info-section{
+  flex:1;min-width:240px;display:flex;
+  flex-direction:column;gap:12px
+}
+.product-title{
+  font-size:18px;font-weight:600;line-height:1.45;
+  color:#0a1628;display:-webkit-box;
+  -webkit-line-clamp:3;-webkit-box-orient:vertical;
+  overflow:hidden;text-overflow:ellipsis;
+  max-height:4.5em
+}
+.sku-row{
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;
+  background:#f7f9fc;padding:8px 14px;
+  border-radius:40px;font-size:14px;color:#2d3f58;margin-top:4px
+}
+.sku-label{font-weight:450;color:#6b7a8f}
+.sku-value{font-weight:550;letter-spacing:.3px;color:#1e2a3a}
+.price-stock-row{
+  display:flex;flex-wrap:wrap;align-items:center;
+  gap:16px 24px;margin-top:4px
+}
+.price-box{
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px
+}
+.price-item{
+  display:flex;align-items:baseline;gap:4px
+}
+.price-label{font-size:13px;color:#6b7a8f}
+.price-number{
+  font-weight:650;font-size:20px;color:#e4393c
+}
+.price-number small{font-size:14px;font-weight:500}
+.price-original{
+  color:#9aa6b5;text-decoration:line-through;font-size:16px;font-weight:400
+}
+.tag-group{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:2px
+}
+.tag{
+  background:#fceaea;color:#c62828;font-size:12px;
+  font-weight:500;padding:4px 12px;border-radius:30px;
+  border:0.5px solid rgba(228,57,60,.15)
+}
+.tag-promo{
+  background:#e8f0fe;color:#1a5c9e;border-color:#c6dafc
+}
+.tag-presale{
+  background:#fff3e0;color:#b7651a;border-color:#fadcb5
+}
+.stock-status{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:14px;font-weight:500;
+  padding:4px 14px 4px 10px;border-radius:40px
+}
+.stock-status.in{background:#eaf7e7;color:#2a7a3b}
+.stock-status.out{background:#ffe9e9;color:#b33a3a}
+.stock-status.presale{background:#fff1d6;color:#a45f1a}
+.stock-indicator{
+  width:8px;height:8px;border-radius:50%;background:#2e9c4a;display:inline-block
+}
+.stock-status.out .stock-indicator{background:#c94a4a}
+.stock-status.presale .stock-indicator{background:#d98c2a}
+.promo-line{
+  background:#fafbfe;padding:10px 14px;
+  border-radius:16px;font-size:14px;color:#1e2a3a;
+  border-left:4px solid #e4393c;margin-top:6px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px
+}
+.promo-line strong{font-weight:600;color:#c62828}
+.promo-line .extra{color:#6b7a8f;font-size:13px}
+/* ---------- 额外信息区 ---------- */
+.extra-section{
+  margin-top:16px;border-top:1px solid #edf0f5;padding-top:12px
+}
+.extra-section h3{
+  font-size:16px;font-weight:600;color:#0a1628;margin-bottom:6px
+}
+.features{
+  display:flex;flex-wrap:wrap;gap:12px;margin-bottom:8px
+}
+.feature{
+  display:flex;align-items:center;gap:4px;font-size:13px;color:#555
+}
+.feature svg{
+  width:16px;height:16px;fill:#e4393c
+}
+.description{
+  font-size:14px;line-height:1.6;color:#333;margin-top:6px
+}
+.footer-note{
+  margin-top:30px;font-size:13px;color:#9aa6b5;
+  text-align:center;border-top:1px solid #edf0f5;padding-top:20px
+}
+/* ---------- 空状态 & 响应式 ---------- */
+.empty-state{
+  text-align:center;padding:40px 10px 30px;color:#8f9eb2
+}
+.empty-state svg{opacity:.3;margin-bottom:10px}
+.empty-state p{font-size:15px}
+.empty-state{display:none}
+@media (max-width:600px){
+  .container{padding:20px 16px}
+  .product-main{flex-direction:column;align-items:center}
+  .image-section{flex:0 0 160px;max-width:160px}
+  .search-btn{width:100%;justify-content:center}
+  .header h1{font-size:20px}
+}
+</style>
 </head>
 <body>
 <div class="container">
   <div class="header">
     <h1>SKU 查询</h1>
-    <span class="badge">京东模拟</span>
-    <span class="sub">🔍 官方样式</span>
+    <span class="badge">京东数据</span>
+    <span class="sub">真实接口演示</span>
   </div>
 
   <!-- 搜索框 -->
   <div class="search-area">
     <div class="search-input-wrapper">
-      <input type="text" id="skuInput" placeholder="输入京东商品SKU，如 100012345" value="100012345" autofocus>
+      <input type="text" id="skuInput" placeholder="输入京东商品 SKU，如 100012345" autofocus>
     </div>
     <button class="search-btn" id="searchBtn">查询</button>
   </div>
 
-  <!-- 商品展示区 -->
+  <!-- 产品展示区 -->
   <div id="productDisplay">
+    <!-- 空状态 -->
     <div class="empty-state" id="emptyState">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#b0c0d0" stroke-width="1.2">
-        <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" />
-        <path d="M8 2v4M16 2v4M3 10h18" stroke="currentColor" />
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+           stroke="#b0c0d0" stroke-width="1.2">
+        <rect x="3" y="4" width="18" height="16" rx="2"/>
       </svg>
-      <p>输入 SKU 后点击查询，展示商品信息</p>
+      <p>输入 SKU 后点击查询，商品信息将在这里显示</p>
     </div>
 
-    <!-- 商品卡片 (默认隐藏) -->
-    <div id="productCard" class="product-card" style="display: none;">
+    <!-- 主卡片（默认隐藏） -->
+    <div id="productCard" class="product-card" style="display:none;">
       <div class="product-main">
-        <!-- 主图 -->
-        <div class="image-section" id="imageSection">
-          <img id="productImage" src="" alt="商品主图" style="display: none;">
+        <!-- 图片 -->
+        <div class="image-section">
+          <img id="productImage" src="" alt="商品主图" style="display:none;">
           <div class="image-placeholder" id="imagePlaceholder">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#a0b0c4" stroke-width="1.2">
-              <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" />
-              <circle cx="9" cy="10" r="1.5" stroke="currentColor" />
-              <path d="M5 18l5-6 3 4 2-3 4 5" stroke="currentColor" />
+              <rect x="3" y="4" width="18" height="16" rx="2"/>
             </svg>
             <span>暂无图片</span>
           </div>
@@ -476,39 +258,46 @@
 
         <!-- 信息区 -->
         <div class="info-section">
-          <div class="product-title" id="productTitle">【京东】商品标题加载中</div>
+          <div class="product-title" id="productTitle">加载中…</div>
+
           <div class="sku-row">
             <span class="sku-label">SKU</span>
-            <span class="sku-value" id="skuDisplay">100012345</span>
+            <span class="sku-value" id="skuDisplay">—</span>
           </div>
 
           <div class="price-stock-row">
             <div class="price-box">
               <div class="price-item">
                 <span class="price-label">到手价</span>
-                <span class="price-number" id="priceFinal">¥<span id="finalPriceNum">129.00</span></span>
+                <span class="price-number" id="finalPriceNum">—</span>
               </div>
               <div class="price-item">
                 <span class="price-label">日常售价</span>
-                <span class="price-original" id="priceOriginal">¥199.00</span>
+                <span class="price-original" id="priceOriginal">—</span>
               </div>
             </div>
+
             <div class="stock-status" id="stockStatus">
               <span class="stock-indicator"></span>
-              <span id="stockText">有货</span>
+              <span id="stockText">—</span>
             </div>
           </div>
 
           <!-- 活动标签 -->
-          <div class="tag-group" id="tagGroup">
-            <span class="tag">满减</span>
-            <span class="tag tag-promo">领券</span>
-            <span class="tag tag-presale">预售</span>
-          </div>
+          <div class="tag-group" id="tagGroup"></div>
 
-          <!-- 优惠信息 -->
-          <div class="promo-line" id="promoLine">
-            <strong>优惠</strong> 满299减50 · 叠加plus券 <span class="extra">(模拟信息)</span>
+          <!-- 优惠文字 -->
+          <div class="promo-line" id="promoLine"></div>
+
+          <!-- 参数 / 描述 -->
+          <div class="extra-section">
+            <h3>商品参数</h3>
+            <div class="features">
+              <div class="feature"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 11L2 17l10 5 10-5-10-5z"/></svg>品牌</div>
+              <div class="feature"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 11L2 17l10 5 10-5-10-5z"/></svg>型号</div>
+              <div class="feature"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zm0 11L2 17l10 5 10-5-10-5z"/></svg>重量</div>
+            </div>
+            <div class="description" id="productDesc">点击查询后将显示商品描述。</div>
           </div>
         </div>
       </div>
@@ -516,194 +305,48 @@
   </div>
 
   <div class="footer-note">
-    查询效果模拟京东官方展示样式 · 价格/库存为示例数据
+    查询效果基于真实 API · 价格/库存为实时数据
   </div>
 </div>
 
 <script>
-  (function() {
-    // DOM 元素
-    const skuInput = document.getElementById('skuInput');
-    const searchBtn = document.getElementById('searchBtn');
-    const productCard = document.getElementById('productCard');
-    const emptyState = document.getElementById('emptyState');
-    const productImage = document.getElementById('productImage');
-    const imagePlaceholder = document.getElementById('imagePlaceholder');
-    const productTitle = document.getElementById('productTitle');
-    const skuDisplay = document.getElementById('skuDisplay');
-    const finalPriceNum = document.getElementById('finalPriceNum');
-    const priceOriginal = document.getElementById('priceOriginal');
-    const stockText = document.getElementById('stockText');
-    const stockStatus = document.getElementById('stockStatus');
-    const tagGroup = document.getElementById('tagGroup');
-    const promoLine = document.getElementById('promoLine');
+(function(){
+  const skuInput      = document.getElementById('skuInput');
+  const searchBtn     = document.getElementById('searchBtn');
+  const emptyState    = document.getElementById('emptyState');
+  const productCard   = document.getElementById('productCard');
+  const productImage  = document.getElementById('productImage');
+  const imagePlaceholder= document.getElementById('imagePlaceholder');
+  const productTitle  = document.getElementById('productTitle');
+  const skuDisplay    = document.getElementById('skuDisplay');
+  const finalPriceNum = document.getElementById('finalPriceNum');
+  const priceOriginal = document.getElementById('priceOriginal');
+  const stockText     = document.getElementById('stockText');
+  const stockStatus   = document.getElementById('stockStatus');
+  const tagGroup      = document.getElementById('tagGroup');
+  const promoLine     = document.getElementById('promoLine');
+  const productDesc   = document.getElementById('productDesc');
 
-    // 模拟数据仓库 (基于SKU后几位变化)
-    function generateMockData(sku) {
-      // 保证输入合法
-      const skuStr = String(sku).trim() || '100012345';
-      // 用SKU数字特征生成不同数据
-      const hash = skuStr.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-      const basePrice = 99 + (hash % 200);  // 99~298
-      const finalPrice = Math.round((basePrice * (0.6 + (hash % 30) / 100)) * 100) / 100; // 大约6~9折
-      const originalPrice = basePrice + 30 + (hash % 70);
-      const hasStock = hash % 3 !== 1; // 2/3概率有货
-      const isPresale = hash % 5 === 0; // 20% 预售
-      let stockType = 'instock';
-      let stockLabel = '有货';
-      if (isPresale) {
-        stockType = 'presale';
-        stockLabel = '预售';
-      } else if (!hasStock) {
-        stockType = 'out';
-        stockLabel = '无货';
-      }
+  function showLoading(){ emptyState.style.display='none'; productCard.style.display='none'; }
+  function showError(msg){ emptyState.style.display='block'; emptyState.innerHTML=`<p style="color:#999;">${msg}</p>`; productCard.style.display='none'; }
 
-      // 图片: 使用京东官方图片占位 (纯示例，实际无法直接获取)
-      const imageId = Math.abs(hash % 1000) + 100;
-      // 使用京东图片风格链接 (仅示意，部分可显示)
-      const imageUrl = `https://img14.360buyimg.com/n1/jfs/t1/${imageId}_${hash % 30}_${hash % 50}.jpg`;
-
-      // 标题
-      const titles = [
-        'Apple iPhone 15 Pro Max 256GB 原色钛金属',
-        '小米14 Ultra 骁龙8 Gen3 徕卡光学 12+256GB',
-        '华为MatePad Pro 13.2英寸 12+512GB WiFi',
-        '索尼WH-1000XM5 头戴式降噪耳机 黑色',
-        '戴森V15 Detect 无绳吸尘器 智能检测',
-        'SK-II 神仙水230ml 护肤精华 限定版',
-        '联想ThinkPad X1 Carbon Gen11 i7 16GB',
-        '茅台 飞天53度 500ml 酱香型白酒',
-        '乐高 兰博基尼Sián FKP 37 科技系列',
-        '海蓝之谜 修护精萃液 150ml'
-      ];
-      const titleIndex = Math.abs(hash) % titles.length;
-      let title = titles[titleIndex];
-      // 附加SKU后缀以示区别
-      if (skuStr.length > 4) {
-        title += ` 【SKU: ${skuStr.slice(0,8)}】`;
-      }
-
-      // 活动标签
-      const tagSet = [];
-      if (hash % 2 === 0) tagSet.push('满减');
-      if (hash % 3 === 0) tagSet.push('领券');
-      if (hash % 7 === 0) tagSet.push('plus专享');
-      if (isPresale) tagSet.push('预售');
-      if (tagSet.length === 0) tagSet.push('爆款', '限时');
-      // 去重
-      const uniqueTags = [...new Set(tagSet)].slice(0, 4);
-
-      // 优惠信息
-      let promoText = '';
-      if (hash % 2 === 0) promoText = '满299减50 叠加plus券';
-      else if (hash % 3 === 0) promoText = '每满200减30 上不封顶';
-      else if (isPresale) promoText = '预售定金膨胀 尾款立减';
-      else promoText = '领券满99减10 新人专享';
-
-      return {
-        title,
-        imageUrl,
-        finalPrice: finalPrice.toFixed(2),
-        originalPrice: originalPrice.toFixed(2),
-        stockType,
-        stockLabel,
-        tags: uniqueTags,
-        promo: promoText,
-        sku: skuStr
-      };
-    }
-
-    // 渲染商品卡片
-    function renderProduct(sku) {
-      if (!sku || sku.trim() === '') {
-        // 显示空状态
-        emptyState.style.display = 'block';
-        productCard.style.display = 'none';
-        return;
-      }
-
-      const data = generateMockData(sku);
-      // 填充数据
-      skuDisplay.textContent = data.sku;
-      productTitle.textContent = data.title;
-      finalPriceNum.textContent = data.finalPrice;
-      priceOriginal.textContent = `¥${data.originalPrice}`;
-
-      // 库存
-      stockText.textContent = data.stockLabel;
-      stockStatus.className = 'stock-status';
-      if (data.stockType === 'out') {
-        stockStatus.classList.add('out');
-      } else if (data.stockType === 'presale') {
-        stockStatus.classList.add('presale');
-      }
-
-      // 标签
-      tagGroup.innerHTML = '';
-      data.tags.forEach(tag => {
-        const span = document.createElement('span');
-        span.className = 'tag';
-        if (tag.includes('券') || tag.includes('专享')) span.classList.add('tag-promo');
-        if (tag.includes('预售')) span.classList.add('tag-presale');
-        span.textContent = tag;
-        tagGroup.appendChild(span);
+  async function loadProduct(sku){
+    if(!sku) return;
+    showLoading();
+    try{
+      // ★ 关键点：相对路径请求后端 /api/scrape
+      const resp = await fetch('/api/scrape',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({sku:sku.trim()})
       });
+      if(!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();   // 期望字段：title,sku,finalPrice,originalPrice,stockStatus,imageUrl,tags,promo,description,attributes
 
-      // 优惠
-      promoLine.innerHTML = `<strong>优惠</strong> ${data.promo} <span class="extra">(模拟信息)</span>`;
-
-      // 图片处理 (模拟京东图片，但可能加载失败)
-      const img = productImage;
-      const placeholder = imagePlaceholder;
-      // 重置
-      img.style.display = 'none';
-      placeholder.style.display = 'flex';
-
-      // 设置图片
-      img.onload = function() {
-        img.style.display = 'block';
-        placeholder.style.display = 'none';
-      };
-      img.onerror = function() {
-        img.style.display = 'none';
-        placeholder.style.display = 'flex';
-        // 可以显示占位符文字
-        placeholder.innerHTML = `<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#a0b0c4" stroke-width="1.2"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor"/><circle cx="9" cy="10" r="1.5" stroke="currentColor"/><path d="M5 18l5-6 3 4 2-3 4 5" stroke="currentColor"/></svg><span>暂无图片</span>`;
-      };
-      img.src = data.imageUrl;
-
-      // 显示卡片，隐藏空状态
-      emptyState.style.display = 'none';
-      productCard.style.display = 'block';
-    }
-
-    // 查询动作
-    function handleSearch() {
-      const sku = skuInput.value.trim();
-      if (sku === '') {
-        emptyState.style.display = 'block';
-        productCard.style.display = 'none';
-        return;
-      }
-      renderProduct(sku);
-    }
-
-    // 绑定事件
-    searchBtn.addEventListener('click', handleSearch);
-    skuInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        handleSearch();
-      }
-    });
-
-    // 初始化默认展示 (让用户看到效果)
-    window.addEventListener('load', function() {
-      // 默认填充一个示例
-      skuInput.value = '100012345';
-      handleSearch();
-    });
-  })();
-</script>
-</body>
-</html>
+      // ---------- 基础信息 ----------
+      productTitle.textContent   = data.title||'商品标题加载中';
+      skuDisplay.textContent     = data.sku||'—';
+      finalPriceNum.textContent  = (data.finalPrice||'¥0').replace(/\.00$/,'');
+      priceOriginal.textContent  = (data.originalPrice||'¥0');
+      stockText.textContent  
+...(truncated)...
